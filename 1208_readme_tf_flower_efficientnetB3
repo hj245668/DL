@@ -1,5 +1,7 @@
 🌼 EfficientNetB3 기반 TF-Flowers 분류 모델
+
 Transfer Learning · Fine-tuning · Advanced Augmentation · TTA Optimization
+
 📌 프로젝트 개요
 
 이 프로젝트는 TensorFlow Flowers 데이터셋을 기반으로 EfficientNetB3 전이학습 모델을 구축하고, 다양한 학습 기법(Fine-tuning, Aggressive Augmentation, Test-Time Augmentation)을 적용하여 고성능 꽃 이미지 분류기(Classifier) 를 개발하는 것을 목표로 한다.
@@ -8,16 +10,11 @@ Transfer Learning · Fine-tuning · Advanced Augmentation · TTA Optimization
 학습–추론 단계 모두에서 성능 최적화 전략을 체계적으로 적용하였다.
 
 📌 주요 특징
-
-🔥 EfficientNetB3 기반 고성능 이미지 분류기
-
-🎯 Head Training + Fine-Tuning 2단계 학습 전략
-
-🌱 강력한 Data Augmentation 적용
-
-🚀 Test-Time Augmentation(TTA) 최적화
-
-📊 모델 성능 시각화 및 분석 포함
+- EfficientNetB3 기반 고성능 이미지 분류기
+- Head Training + Fine-Tuning 2단계 학습 전략
+- 강력한 Data Augmentation 적용
+- Test-Time Augmentation(TTA) 최적화
+- 모델 성능 시각화 및 분석 포함
 
 1. 데이터셋 소개
 
