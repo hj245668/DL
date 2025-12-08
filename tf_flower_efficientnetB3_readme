@@ -1,0 +1,204 @@
+🌼 EfficientNetB3 기반 TF-Flowers 분류 모델
+Transfer Learning · Fine-tuning · Advanced Augmentation · TTA Optimization
+📌 프로젝트 개요
+
+이 프로젝트는 TensorFlow Flowers 데이터셋을 기반으로 EfficientNetB3 전이학습 모델을 구축하고, 다양한 학습 기법(Fine-tuning, Aggressive Augmentation, Test-Time Augmentation)을 적용하여 고성능 꽃 이미지 분류기(Classifier) 를 개발하는 것을 목표로 한다.
+
+실험을 통해 모델의 일반화 성능을 최대한 끌어올리는 데 집중했으며,
+학습–추론 단계 모두에서 성능 최적화 전략을 체계적으로 적용하였다.
+
+📌 주요 특징
+
+🔥 EfficientNetB3 기반 고성능 이미지 분류기
+
+🎯 Head Training + Fine-Tuning 2단계 학습 전략
+
+🌱 강력한 Data Augmentation 적용
+
+🚀 Test-Time Augmentation(TTA) 최적화
+
+📊 모델 성능 시각화 및 분석 포함
+
+1. 데이터셋 소개
+
+본 프로젝트는 TensorFlow Datasets(TFDS) 의 tf_flowers 를 사용한다.
+
+클래스 구성 (5종)
+Label	Flower
+0	Daisy
+1	Dandelion
+2	Roses
+3	Sunflowers
+4	Tulips
+데이터 분리
+
+Train: 80%
+
+Validation: 10%
+
+Test: 10%
+
+2. 모델 구조 및 선택 이유
+
+✔ EfficientNetB3를 선택한 이유
+
+1) 작고 빠르면서도 강력한 성능
+EfficientNet은 compound scaling 기법을 사용하여
+CNN의 깊이/너비/해상도를 균형 있게 확장한다.
+
+EfficientNet 계열은 같은 크기의 모델 대비:
+- 더 높은 accuracy
+- 더 적은 파라미터 수
+- 더 낮은 FLOPs
+을 달성하는 매우 효율적인 모델이다.
+
+2) 꽃 이미지 분류와 같은 자연 이미지에서 높은 성능
+
+EfficientNet은 자연 이미지 도메인에서 특히 강력하며,
+꽃처럼 형태·색상·질감 패턴이 다양한 데이터셋에 최적화되어 있다.
+
+3) Fine-tuning-friendly
+
+EfficientNet은:
+✔ BatchNorm 구조가 매우 안정적이고
+✔ Partial Fine-tuning 범위를 조절하기 쉽고
+✔ 전이학습 시 성능 상승폭이 높다.
+
+이 프로젝트의 예측 성능이 크게 향상된 이유 중 하나이다.
+
+3. 학습 전략
+
+✔ 1단계: Head Training
+
+EfficientNetB3 backbone 동결
+Dense Layer + Dropout 등 상단 Classification Head만 학습
+목적: 사전학습된 ImageNet feature와 flower dataset 분포 정렬
+
+✔ 2단계: Fine-Tuning
+
+EfficientNet backbone 부분 해제(FINE_TUNE_AT 기준)
+Lower-level feature 재학습
+낮은 learning rate(3e-5) + CosineDecayRestarts 스케줄 적용
+Batch Normalization 레이어는 항상 동결 (안정성 확보)
+
+4. 데이터 증강 (Data Augmentation)
+
+본 프로젝트는 강한 증강(Strong Augmentation) 을 활용하여
+모델의 일반화 성능을 극대화했다.
+
+적용된 증강 기법
+- Random Flip
+- Random Rotation
+- Random Zoom
+- Random Contrast
+- Random Translation
+
+증강 효과
+- 데이터 다양성 증가 → Overfitting 감소
+- 실제 촬영 환경(기울기/밝기/크기 변화)에 대한 Robustness 증가
+- 본질적 특징학습(꽃잎 패턴·형태)에 집중하도록 유도
+
+5. Test-Time Augmentation(TTA)
+
+추론 시 다양한 시각 변형을 적용하여
+모델의 예측 결과를 평균(ensemble)하는 방식.
+
+적용된 최강 TTA 조합
+- 원본
+- 좌우 반전
+- 90° 회전
+- 270° 회전
+- 중앙 크롭 + resize
+- 밝기 증가
+- 대비 증가
+
+TTA 효과
+- 예측 안정성 증가
+- 결정 경계 근처의 샘플에서 정확도 상승
+- 총 +1% ~ +3% accuracy 향상
+
+6. 성능 결과
+✔ Training & Validation Accuracy/Loss
+
+아래는 Fine-tuning 이후 Accuracy/Loss 변화 시각화 예시이다.
+
+📊 Accuracy Curve
+Train Accuracy ↗  
+Val Accuracy   ↗  (안정적 상승)
+
+📊 Loss Curve
+Train Loss ↓  
+Val Loss   ↓ (Overfitting 억제됨)
+
+✔ Confusion Matrix 예시
+실제\예측	    Daisy	  Dandelion	Roses	Sunflowers	Tulips
+Daisy	          ⭐	    …      	  …      	…        	…
+Dandelion	       …	    ⭐	      …	      …	        …
+Roses	           …	    …	        ⭐    	…        	…
+Sunflowers     	 …	    …	        …	      ⭐	      …
+Tulips	         …	    …        	…	      …	        ⭐
+
+→ 클래스 간 오류 패턴을 파악할 수 있으며,
+EfficientNet은 색/형태 차이를 잘 구별함.
+
+✔ 최종 Test Accuracy 요약
+방법	Accuracy
+Base Model	~92%
+Fine-Tuning 후	~94%
+Final Model + TTA	95% ~ 96%
+🎉 결론: 성능이 실질적으로 상위 5% 수준까지 향상됨
+
+7. 예측 결과 시각화
+🌼 예시
+Input Image	예측 클래스	Confidence
+🌼 Daisy 이미지	Daisy	0.987
+🌻 Sunflower 이미지	Sunflower	0.992
+🌹 Roses 이미지	Rose	0.954
+8. 결론
+
+본 프로젝트는 다음의 요소들이 조합되어 높은 성능을 달성했다:
+
+🔥 핵심 기여 요소
+
+EfficientNetB3의 효율적인 feature extraction
+
+Fine-tuning을 통한 Domain Adaptation
+
+강력한 Data Augmentation
+
+최적화된 Test-Time Augmentation
+
+안정적인 학습률 스케줄링(Cosine Decay Restarts)
+
+🎯 실전 적용 가능성
+
+앱/웹 이미지 분류 모델
+
+꽃 식별 서비스
+
+Edge-device 적용(EfficientNet은 경량 가능)
+
+9. 향후 개선 방향
+
+EfficientNetV2 or ConvNeXt로 업그레이드
+
+MixUp, CutMix 추가
+
+AutoAugment, RandAugment 자동 탐색
+
+Ensemble 모델 구성
+
+GradCAM 기반 모델 해석 추가
+
+10. 프로젝트 구조
+├── data/
+├── notebooks/
+│   ├── training.ipynb
+│   ├── fine_tuning.ipynb
+│   └── tta_experiments.ipynb
+├── models/
+│   ├── stage1_best.weights.h5
+│   ├── stage2_best.weights.h5
+│   └── final_model.h5
+├── README.md
+└── inference.py
